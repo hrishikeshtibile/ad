@@ -1,0 +1,162 @@
+MainActivity.java
+📁 Location: app/src/main/java/com/example/dialogboxesandmenu/MainActivity.java
+
+package com.example.dialogboxesandmenu;
+
+import android.app.AlertDialog;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.PopupMenu;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    Button popupMenuButton, dialogButton, contextMenuButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        popupMenuButton = findViewById(R.id.popupMenuButton);
+        dialogButton = findViewById(R.id.dialogButton);
+        contextMenuButton = findViewById(R.id.contextMenuButton);
+
+        popupMenuButton.setOnClickListener(this::showPopupMenu);
+        dialogButton.setOnClickListener(v -> showDialog());
+
+        registerForContextMenu(contextMenuButton);  // Enables context menu
+    }
+
+    private void showPopupMenu(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            Toast.makeText(this, "Popup Menu Selected: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            return true;
+        });
+        popupMenu.show();
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_custom, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        Button okButton = dialogView.findViewById(R.id.okButton);
+        okButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        Toast.makeText(this, "Context Menu Selected: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu); // App bar menu
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Toast.makeText(this, "Options Menu Selected: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+        return true;
+    }
+}
+
+activity_main.xml
+📁 Location: app/src/main/res/layout/activity_main.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/popupMenuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Popup Menu" />
+
+    <Button
+        android:id="@+id/dialogButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Dialog"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/contextMenuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Context Menu"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
+
+dialog_custom.xml
+📁 Location: app/src/main/res/layout/dialog_custom.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/dialogText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This is a custom dialog!"
+        android:textSize="18sp"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp" />
+
+    <Button
+        android:id="@+id/okButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>
+
+main_menu.xml
+📁 Location: app/src/main/res/menu/main_menu.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_item1" android:title="Item 1" />
+    <item android:id="@+id/menu_item2" android:title="Item 2" />
+    <item android:id="@+id/menu_item3" android:title="Item 3" />
+</menu>
+
+context_menu.xml
+📁 Location: app/src/main/res/menu/context_menu.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/context_item1" android:title="Context Option 1" />
+    <item android:id="@+id/context_item2" android:title="Context Option 2" />
+</menu>
