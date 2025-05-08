@@ -1,0 +1,193 @@
+MainActivity.java
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText nameInput;
+    Spinner subjectSpinner;
+    RadioGroup genderGroup;
+    CheckBox graduateCheck, postGraduateCheck, phdCheck;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_main);
+
+        // Initialize UI components
+        nameInput = findViewById(R.id.nameInput);
+        subjectSpinner = findViewById(R.id.subjectSpinner);
+        genderGroup = findViewById(R.id.genderRadioGroup);
+        graduateCheck = findViewById(R.id.graduateCheck);
+        postGraduateCheck = findViewById(R.id.postGraduateCheck);
+        phdCheck = findViewById(R.id.phdCheck);
+
+        // Set up spinner data
+        subjectSpinner.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Computer Science", "Math", "Physics"}
+        ));
+
+        // Handle submit button click
+        findViewById(R.id.submitButton).setOnClickListener(v -> {
+            if (nameInput.getText().toString().isEmpty() ||
+                    genderGroup.getCheckedRadioButtonId() == -1) {
+                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Collect qualifications
+            StringBuilder qualifications = new StringBuilder();
+            if (graduateCheck.isChecked()) qualifications.append("Graduate ");
+            if (postGraduateCheck.isChecked()) qualifications.append("Post Graduate ");
+            if (phdCheck.isChecked()) qualifications.append("PhD");
+
+            // Save data in SharedPreferences
+            SharedPreferences.Editor editor = getSharedPreferences("RegistrationData", MODE_PRIVATE).edit();
+            editor.putString("name", nameInput.getText().toString());
+            editor.putString("subject", subjectSpinner.getSelectedItem().toString());
+            editor.putString("gender", ((RadioButton) findViewById(genderGroup.getCheckedRadioButtonId())).getText().toString());
+            editor.putString("qualifications", qualifications.toString().trim());
+            editor.apply();
+
+            // Launch ShowActivity
+            startActivity(new Intent(this, ShowActivity.class));
+        });
+    }
+}
+
+
+show activity.java
+package com.example.prac4;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class ShowActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_show);
+
+        // Retrieve stored data from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("RegistrationData", MODE_PRIVATE);
+
+        // Set data to respective TextViews
+        TextView nameText = findViewById(R.id.nameText);
+        TextView subjectText = findViewById(R.id.subjectText);
+        TextView genderText = findViewById(R.id.genderText);
+        TextView qualificationsText = findViewById(R.id.qualificationsText);
+
+        nameText.setText(prefs.getString("name", ""));
+        subjectText.setText(prefs.getString("subject", ""));
+        genderText.setText(prefs.getString("gender", ""));
+        qualificationsText.setText(prefs.getString("qualifications", ""));
+
+        // Handle back button
+        findViewById(R.id.backButton).setOnClickListener(v -> finish());
+    }
+}
+
+
+activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Name" />
+
+    <Spinner
+        android:id="@+id/subjectSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RadioGroup
+        android:id="@+id/genderRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Male" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Female" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/graduateCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Graduate" />
+
+    <CheckBox
+        android:id="@+id/postGraduateCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post Graduate" />
+
+    <CheckBox
+        android:id="@+id/phdCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PhD" />
+
+    <Button
+        android:id="@+id/submitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit" />
+</LinearLayout>
+
+activity_show.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView android:id="@+id/nameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name:" />
+
+    <TextView android:id="@+id/subjectText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subject:" />
+
+    <TextView android:id="@+id/genderText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gender:" />
+
+    <TextView android:id="@+id/qualificationsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Qualifications:" />
+
+    <Button android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+</LinearLayout>
